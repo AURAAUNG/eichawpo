@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GiveawayHub — Free Software, Every Day</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --card: #16161f;
+      --border: #1e1e2e;
+      --accent: #ff5c2b;
+      --accent2: #ffb347;
+      --green: #39d98a;
+      --blue: #4fc3f7;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --tag-bg: #1a1a2e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(10,10,15,0.82);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,92,43,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(255,92,43,0); }
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-cta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .nav-cta:hover { background: #e04a1f; transform: translateY(-1px); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 160px 48px 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--green);
+      background: rgba(57,217,138,0.08);
+      border: 1px solid rgba(57,217,138,0.2);
+      padding: 6px 14px;
+      border-radius: 100px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      animation: fadeDown 0.7s 0.1s ease both;
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero h1 span::after {
+      content: '';
+      position: absolute;
+      bottom: 4px; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: underlineIn 0.6s 0.7s ease forwards;
+    }
+
+    @keyframes underlineIn { to { transform: scaleX(1); } }
+
+    .hero p {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      margin: 24px 0 40px;
+      animation: fadeDown 0.7s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      animation: fadeDown 0.7s 0.3s ease both;
+    }
+
+    .btn-primary {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 6px;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover { background: #e04a1f; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,92,43,0.3); }
+
+    .btn-secondary {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 14px 28px;
+      border-radius: 6px;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Stats ── */
+    .stats {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 48px 0 0;
+      animation: fadeDown 0.7s 0.4s ease both;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 28px 32px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      color: var(--text);
+    }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ── Platform chips ── */
+    .platforms {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 32px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      padding: 7px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .chip:hover, .chip.active { border-color: var(--accent); color: var(--accent); background: rgba(255,92,43,0.06); }
+    .chip.active { font-weight: 500; }
+
+    /* ── Section ── */
+    section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 48px 80px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .section-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Featured card ── */
+    .featured-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,92,43,0.3);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    }
+
+    .card-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-image-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      position: relative;
+    }
+
+    .card-image-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(22,22,31,0.8) 100%);
+    }
+
+    .card-body { padding: 24px; }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tag-pc { background: rgba(79,195,247,0.1); color: var(--blue); border: 1px solid rgba(79,195,247,0.2); }
+    .tag-ios { background: rgba(255,179,71,0.1); color: var(--accent2); border: 1px solid rgba(255,179,71,0.2); }
+    .tag-android { background: rgba(57,217,138,0.1); color: var(--green); border: 1px solid rgba(57,217,138,0.2); }
+    .tag-free { background: rgba(255,92,43,0.1); color: var(--accent); border: 1px solid rgba(255,92,43,0.2); }
+
+    .card-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .card h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .card.featured h2 { font-size: 1.6rem; }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .card-read {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Blog grid ── */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    /* ── Ticker ── */
+    .ticker-wrap {
+      overflow: hidden;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+      margin: 0 0 60px;
+    }
+
+    .ticker {
+      display: flex;
+      gap: 60px;
+      animation: ticker 24s linear infinite;
+      width: max-content;
+    }
+
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    .ticker-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ticker-item span { color: var(--accent); }
+
+    /* ── Newsletter ── */
+    .newsletter {
+      background: linear-gradient(135deg, #16161f 0%, #1a1a2e 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 56px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      margin: 0 48px 80px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .newsletter::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,92,43,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .newsletter-text h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .newsletter-text p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .newsletter-form input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      outline: none;
+      width: 260px;
+      transition: border-color 0.2s;
+    }
+
+    .newsletter-form input::placeholder { color: var(--muted); }
+    .newsletter-form input:focus { border-color: var(--accent); }
+
+    .newsletter-form button {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .newsletter-form button:hover { background: #e04a1f; transform: translateY(-1px); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── Animations ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .hero, section { padding-left: 20px; padding-right: 20px; }
+      .hero { padding-top: 120px; }
+      .featured-grid { grid-template-columns: 1fr; }
+      .blog-grid { grid-template-columns: 1fr; }
+      .newsletter { flex-direction: column; padding: 36px 24px; margin: 0 20px 60px; }
+      .newsletter-form { flex-direction: column; width: 100%; }
+      .newsletter-form input { width: 100%; }
+      footer { flex-direction: column; gap: 20px; text-align: center; }
+      .platforms { padding: 20px; }
+      .stat { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a href="#" class="logo">
+      <div class="logo-dot"></div>
+      GiveawayHub
+    </a>
+    <ul class="nav-links">
+      <li><a href="#featured">Featured</a></li>
+      <li><a href="#latest">Latest</a></li>
+      <li><a href="#platforms">Platforms</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <button class="nav-cta">Subscribe Free</button>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">🎁 Updated Daily — New Giveaways Every 24hrs</div>
+    <h1>Free Software,<br><span>Every Single Day</span></h1>
+    <p>Your go-to source for the best free software giveaways across PC, iOS, and Android. No strings attached — just great apps, free.</p>
+    <div class="hero-actions">
+      <a href="#featured" class="btn-primary">Browse Giveaways →</a>
+      <a href="#" class="btn-secondary">All Platforms</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">1,200+</div>
+        <div class="stat-label">Apps Listed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Daily</div>
+        <div class="stat-label">New Giveaways</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">PC · iOS · Android</div>
+        <div class="stat-label">Platforms Covered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Always Free</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <div class="ticker-item"><span>●</span> CleanMyMac X — PC Free Today</div>
+      <div class="ticker-item"><span>●</span> Toolbox for Word — iOS Giveaway</div>
+      <div class="ticker-item"><span>●</span> PDF Expert Pro — Android Deal</div>
+      <div class="ticker-item"><span>●</span> Ashampoo Photo Commander — PC</div>
+      <div class="ticker-item"><span>●</span> MoneyMoney — iOS Giveaway</div>
+      <div class="ticker-item"><span>●</span> Folder Colorizer Pro — PC Free</div>
+      <div class="ticker-item"><span>●</span> CleanMyMac X — PC Free Today</div>
+      <div class="ticker-item"><span>●</span> Toolbox for Word — iOS Giveaway</div>
+      <div class="ticker-item"><span>●</span> PDF Expert Pro — Android Deal</div>
+      <div class="ticker-item"><span>●</span> Ashampoo Photo Commander — PC</div>
+      <div class="ticker-item"><span>●</span> MoneyMoney — iOS Giveaway</div>
+      <div class="ticker-item"><span>●</span> Folder Colorizer Pro — PC Free</div>
+    </div>
+  </div>
+
+  <!-- Platform Filter -->
+  <div class="platforms" id="platforms">
+    <div class="chip active" onclick="filterChip(this)">All Platforms</div>
+    <div class="chip" onclick="filterChip(this)">💻 Windows PC</div>
+    <div class="chip" onclick="filterChip(this)">🍎 macOS</div>
+    <div class="chip" onclick="filterChip(this)">📱 iOS / iPadOS</div>
+    <div class="chip" onclick="filterChip(this)">🤖 Android</div>
+    <div class="chip" onclick="filterChip(this)">🎮 Games</div>
+    <div class="chip" onclick="filterChip(this)">🛡️ Security</div>
+    <div class="chip" onclick="filterChip(this)">🎨 Design</div>
+    <div class="chip" onclick="filterChip(this)">🎵 Media</div>
+  </div>
+
+  <!-- Featured -->
+  <section id="featured">
+    <div class="section-header">
+      <div class="section-title">🔥 Featured Giveaways</div>
+      <a href="#" class="section-link">View All →</a>
+    </div>
+
+    <div class="featured-grid">
+      <!-- Big featured card -->
+      <div class="card featured">
+        <div class="card-image">
+          <div class="card-image-inner">🛡️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="tag tag-pc">PC</span>
+            <span class="tag tag-free">Free Today</span>
+            <span class="card-date">Apr 30, 2026</span>
+          </div>
+          <h2>Malwarebytes Premium — 1-Year License Giveaway</h2>
+          <p>One of the most trusted names in cybersecurity is giving away a full-year premium license. Real-time protection, ransomware defense, and zero ads — all yours for free until midnight.</p>
+        </div>
+        <div class="card-footer">
+          <div class="card-author">
+            <div class="avatar">GH</div>
+            GiveawayHub Team · 4 min read
+          </div>
+          <span class="card-read">Claim Now →</span>
+        </div>
+      </div>
+
+      <!-- Side cards -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card">
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="tag tag-ios">iOS</span>
+              <span class="tag tag-free">Free Today</span>
+              <span class="card-date">Apr 30, 2026</span>
+            </div>
+            <h2>PDF Squeezer 5 — Compress Any PDF</h2>
+            <p>Normally $9.99, this top-rated PDF compressor is free on the App Store for 24 hours only. Batch compress, drag & drop support, and Lightning-fast processing.</p>
+          </div>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="avatar">GH</div>
+              2 min read
+            </div>
+            <span class="card-read">Claim Now →</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="tag tag-android">Android</span>
+              <span class="tag tag-free">Free Today</span>
+              <span class="card-date">Apr 30, 2026</span>
+            </div>
+            <h2>Tasker — Automate Your Android Like a Pro</h2>
+            <p>The legendary Android automation app is running a free weekend. Create complex macros, automate daily routines, and build your own mini-apps without writing code.</p>
+          </div>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="avatar">GH</div>
+              3 min read
+            </div>
+            <span class="card-read">Claim Now →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Posts -->
+  <section id="latest">
+    <div class="section-header">
+      <div class="section-title">📰 Latest Posts</div>
+      <a href="#" class="section-link">All Posts →</a>
+    </div>
+    <div class="blog-grid">
+
+      <div class="card">
+        <div class="card-image" style="aspect-ratio:16/8">
+          <div class="card-image-inner" style="font-size:2.5rem">🎨</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="tag tag-pc">macOS</span>
+            <span class="card-date">Apr 29, 2026</span>
+          </div>
+          <h2>Affinity Designer 2 — Limited Free Access Weekend</h2>
+          <p>The professional vector design tool opens its doors for a free weekend. Here's how to download and everything you can do.</p>
+        </div>
+        <div class="card-footer">
+          <div class="card-author"><div class="avatar">GH</div> 3 min</div>
+          <span class="card-read">Read →</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-image" style="aspect-ratio:16/8">
+          <div class="card-image-inner" style="font-size:2.5rem">🎮</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="tag tag-pc">PC Game</span>
+            <span class="card-date">Apr 28, 2026</span>
+          </div>
+          <h2>Epic Games Free This Week: Two AAA Titles Available</h2>
+          <p>Epic's weekly free game drops are some of the best deals in gaming. This week features two massive titles — claim them before Thursday.</p>
+        </div>
+        <div class="card-footer">
+          <div class="card-author"><div class="avatar">GH</div> 2 min</div>
+          <span class="card-read">Read →</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-image" style="aspect-ratio:16/8">
+          <div class="card-image-inner" style="font-size:2.5rem">📡</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="tag tag-android">Android</span>
+            <span class="card-date">Apr 27, 2026</span>
+          </div>
+          <h2>5 Android VPN Apps Going Free This Week</h2>
+          <p>A roundup of this week's top VPN giveaways on Android. All verified, no sketchy permissions, and confirmed working on Android 14.</p>
+        </div>
+        <div class="card-footer">
+          <div class="card-author"><div class="avatar">GH</div> 5 min</div>
+          <span class="card-read">Read →</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-image" style="aspect-ratio:16/8">
+          <div class="card-image-inner" style="font-size:2.5rem">🖥️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="tag tag-pc">Windows</span>
+            <span class="card-date">Apr 26, 2026</span>
+          </div>
+          <h2>Ashampoo Backup Pro 17 — Free Serial Key Giveaway</h2>
+          <p>Ashampoo's most popular backup suite is offering free lifetime licenses. Step-by-step guide to claiming your key before the offer ends.</p>
+        </div>
+        <div class="card-footer">
+          <div class="card-author"><div class="avatar">GH</div> 3 min</div>
+          <span class="card-read">Read →</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-image" style="aspect-ratio:16/8">
+          <div class="card-image-inner" style="font-size:2.5rem">📷</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="tag tag-ios">iOS</span>
+            <span class="card-date">Apr 25, 2026</span>
+          </div>
+          <h2>Halide Mark III Camera App — Free for 48 Hours</h2>
+          <p>The most acclaimed manual camera app on iOS is temporarily free. Grab it now and get RAW capture, histogram, focus peaking, and more.</p>
+        </div>
+        <div class="card-footer">
+          <div class="card-author"><div class="avatar">GH</div> 2 min</div>
+          <span class="card-read">Read →</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-image" style="aspect-ratio:16/8">
+          <div class="card-image-inner" style="font-size:2.5rem">🔧</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="tag tag-pc">Windows</span>
+            <span class="card-date">Apr 24, 2026</span>
+          </div>
+          <h2>Top 10 PC Utility Giveaways of April 2026</h2>
+          <p>Our monthly roundup of the best free utility software you might have missed. Cleaners, optimizers, file managers — all fully licensed.</p>
+        </div>
+        <div class="card-footer">
+          <div class="card-author"><div class="avatar">GH</div> 7 min</div>
+          <span class="card-read">Read →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <div class="newsletter" id="about">
+    <div class="newsletter-text">
+      <h3>Never Miss a Giveaway 🎁</h3>
+      <p>Get daily alerts for free PC, iOS, and Android software — straight to your inbox. No spam, unsubscribe anytime.</p>
+    </div>
+    <div class="newsletter-form">
+      <input type="email" placeholder="your@email.com" />
+      <button onclick="handleSubscribe(this)">Notify Me</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-logo">GiveawayHub</div>
+    <div class="footer-copy">© 2026 GiveawayHub · Built for freeware lovers everywhere</div>
+    <div class="footer-links">
+      <a href="#">Twitter</a>
+      <a href="#">Facebook</a>
+      <a href="#">Instagram</a>
+      <a href="#">RSS Feed</a>
+      <a href="#">Telegram</a>
+      <a href="#">About</a>
+      <a href="#">Privacy</a>
+    </div>
+  </footer>
+
+  <script>
+    function filterChip(el) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function handleSubscribe(btn) {
+      const input = btn.previousElementSibling;
+      if (!input.value.includes('@')) {
+        input.style.borderColor = '#ff5c2b';
+        return;
+      }
+      btn.textContent = '✓ Subscribed!';
+      btn.style.background = '#39d98a';
+      btn.disabled = true;
+      input.disabled = true;
+    }
+
+    // Animate cards on scroll
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          e.target.style.animation = `fadeUp 0.5s ${i * 0.05}s ease both`;
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.card').forEach(card => observer.observe(card));
+  </script>
+</body>
+</html>
